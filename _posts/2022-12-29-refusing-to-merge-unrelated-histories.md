@@ -7,8 +7,6 @@ author:
 meta: "git"
 ---
 
-# git拉取合并代码提示refusing to merge unrelated histories
-
 ## 出现原因
 
 远程git记录和本地记录无法匹配, 导致无法合并.
