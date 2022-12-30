@@ -1,5 +1,185 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2022-12-29T11:42:12+08:00</updated><id>/feed.xml</id><title type="html">文档记录</title><subtitle>文档记录.
-</subtitle><author><name>tinyman</name><email>risky5200@gmail.com</email></author><entry><title type="html">git拉取合并代码提示refusing to merge unrelated histories</title><link href="/git/2022/12/29/refusing-to-merge-unrelated-histories.html" rel="alternate" type="text/html" title="git拉取合并代码提示refusing to merge unrelated histories" /><published>2022-12-29T00:00:00+08:00</published><updated>2022-12-29T00:00:00+08:00</updated><id>/git/2022/12/29/refusing-to-merge-unrelated-histories</id><content type="html" xml:base="/git/2022/12/29/refusing-to-merge-unrelated-histories.html"><![CDATA[<h2 id="出现原因">出现原因</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2022-12-30T09:31:38+08:00</updated><id>/feed.xml</id><title type="html">文档记录</title><subtitle>文档记录.
+</subtitle><author><name>tinyman</name><email>risky5200@gmail.com</email></author><entry><title type="html">非对称加密</title><link href="/ssl/2022/12/30/asymmetric-encryption.html" rel="alternate" type="text/html" title="非对称加密" /><published>2022-12-30T00:00:00+08:00</published><updated>2022-12-30T00:00:00+08:00</updated><id>/ssl/2022/12/30/asymmetric-encryption</id><content type="html" xml:base="/ssl/2022/12/30/asymmetric-encryption.html"><![CDATA[<h2 id="一-参考">一. 参考</h2>
+
+<p><a href="https://www.cnblogs.com/gordon0918/p/5363466.html">博客园-拾荒人</a></p>
+
+<h2 id="二-生成密钥对">二. 生成密钥对</h2>
+
+<h3 id="1-帮助命令">1. 帮助命令</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl genrsa -
+usage: genrsa [args] [numbits]
+ -des            encrypt the generated key with DES in cbc mode
+ -des3           encrypt the generated key with DES in ede cbc mode (168 bit key)
+ -aes128, -aes192, -aes256
+                 encrypt PEM output with cbc aes
+ -camellia128, -camellia192, -camellia256
+                 encrypt PEM output with cbc camellia
+ -out file       output the key to 'file
+ -passout arg    output file pass phrase source
+ -f4             use F4 (0x10001) for the E value
+ -3              use 3 for the E value
+</code></pre></div></div>
+
+<h3 id="2-私钥---实际上是密钥对">2. 私钥 - 实际上是密钥对</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl genrsa -aes256 -out key.pem 2048
+</code></pre></div></div>
+
+<h3 id="3-公钥---从密钥对中提取公钥">3. 公钥 - 从密钥对中提取公钥</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl rsa -in key.pem -pubout -out pub.pem
+</code></pre></div></div>
+
+<h3 id="4-查看">4. 查看</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl rsa -in key.pem -noout -text
+openssl rsa -in pub.pem -pubin -noout -text
+</code></pre></div></div>
+
+<h2 id="三-公钥加密-私钥解密">三. 公钥加密-私钥解密</h2>
+
+<h3 id="1-公钥加密">1. 公钥加密</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl rsautl -encrypt -in plain.txt -inkey pub.pem -pubin -out enc.txt
+</code></pre></div></div>
+
+<h3 id="2-私钥解密">2. 私钥解密</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl rsautl -decrypt -in enc.txt -inkey key.pem -out replain.txt
+</code></pre></div></div>
+
+<h2 id="四-私钥加密-私钥解密">四. 私钥加密-私钥解密</h2>
+
+<h3 id="1-私钥加密">1. 私钥加密</h3>
+
+<p>实际上是使用密钥对中的公钥进行加密, 同上</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl rsautl -encrypt -in plain.txt -inkey key.pem -out enc.txt
+</code></pre></div></div>
+
+<h3 id="2-私钥解密-1">2. 私钥解密</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl rsautl -decrypt -in enc.txt -inkey key.pem -out replain.txt
+</code></pre></div></div>
+
+<h2 id="五-私钥签名-公钥验证">五. 私钥签名-公钥验证</h2>
+
+<h3 id="1-私钥签名">1. 私钥签名</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl rsautl -sign -inkey key.pem -in plain.txt -out enc.txt
+</code></pre></div></div>
+
+<h3 id="2-公钥验证">2. 公钥验证</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl rsautl -verify -inkey pub.pem -pubin -in enc.txt -out replain.txt
+</code></pre></div></div>]]></content><author><name>[&quot;wuqi&quot;]</name></author><category term="ssl" /><summary type="html"><![CDATA[一. 参考]]></summary></entry><entry><title type="html">对称加密</title><link href="/ssl/2022/12/30/symmetrical-encryption.html" rel="alternate" type="text/html" title="对称加密" /><published>2022-12-30T00:00:00+08:00</published><updated>2022-12-30T00:00:00+08:00</updated><id>/ssl/2022/12/30/symmetrical-encryption</id><content type="html" xml:base="/ssl/2022/12/30/symmetrical-encryption.html"><![CDATA[<h2 id="参考链接">参考链接</h2>
+
+<p><a href="https://www.cnblogs.com/gordon0918/p/5317701.html">博客园-拾荒人</a></p>
+
+<h2 id="帮助命令">帮助命令</h2>
+
+<p><code class="language-plaintext highlighter-rouge">openssl enc -h</code>, 输出如下:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>usage: enc -ciphername [-AadePp] [-base64] [-bufsize number] [-debug]
+    [-in file] [-iv IV] [-K key] [-k password]
+    [-kfile file] [-md digest] [-none] [-nopad] [-nosalt]
+    [-out file] [-pass arg] [-S salt] [-salt]
+
+ -A                 Process base64 data on one line (requires -a)
+ -a                 Perform base64 encoding/decoding (alias -base64)
+ -bufsize size      Specify the buffer size to use for I/O
+ -d                 Decrypt the input data
+ -debug             Print debugging information
+ -e                 Encrypt the input data (default)
+ -in file           Input file to read from (default stdin)
+ -iv IV             IV to use, specified as a hexadecimal string
+ -K key             Key to use, specified as a hexadecimal string
+ -md digest         Digest to use to create a key from the passphrase
+ -none              Use NULL cipher (no encryption or decryption)
+ -nopad             Disable standard block padding
+ -out file          Output file to write to (default stdout)
+ -P                 Print out the salt, key and IV used, then exit
+                      (no encryption or decryption is performed)
+ -p                 Print out the salt, key and IV used
+ -pass source       Password source
+ -S salt            Salt to use, specified as a hexadecimal string
+ -salt              Use a salt in the key derivation routines (default)
+ -v                 Verbose
+
+Valid ciphername values:
+
+ -aes-128-cbc              -aes-128-cfb              -aes-128-cfb1
+ -aes-128-cfb8             -aes-128-ctr              -aes-128-ecb
+ -aes-128-gcm              -aes-128-ofb              -aes-128-xts
+ -aes-192-cbc              -aes-192-cfb              -aes-192-cfb1
+ -aes-192-cfb8             -aes-192-ctr              -aes-192-ecb
+ -aes-192-gcm              -aes-192-ofb              -aes-256-cbc
+ -aes-256-cfb              -aes-256-cfb1             -aes-256-cfb8
+ -aes-256-ctr              -aes-256-ecb              -aes-256-gcm
+ -aes-256-ofb              -aes-256-xts              -aes128
+ -aes192                   -aes256                   -bf
+ -bf-cbc                   -bf-cfb                   -bf-ecb
+ -bf-ofb                   -blowfish                 -camellia-128-cbc
+ -camellia-128-cfb         -camellia-128-cfb1        -camellia-128-cfb8
+ -camellia-128-ecb         -camellia-128-ofb         -camellia-192-cbc
+ -camellia-192-cfb         -camellia-192-cfb1        -camellia-192-cfb8
+ -camellia-192-ecb         -camellia-192-ofb         -camellia-256-cbc
+ -camellia-256-cfb         -camellia-256-cfb1        -camellia-256-cfb8
+ -camellia-256-ecb         -camellia-256-ofb         -camellia128
+ -camellia192              -camellia256              -cast
+ -cast-cbc                 -cast5-cbc                -cast5-cfb
+ -cast5-ecb                -cast5-ofb                -chacha
+ -des                      -des-cbc                  -des-cfb
+ -des-cfb1                 -des-cfb8                 -des-ecb
+ -des-ede                  -des-ede-cbc              -des-ede-cfb
+ -des-ede-ofb              -des-ede3                 -des-ede3-cbc
+ -des-ede3-cfb             -des-ede3-cfb1            -des-ede3-cfb8
+ -des-ede3-ofb             -des-ofb                  -des3
+ -desx                     -desx-cbc                 -gost89
+ -gost89-cnt               -gost89-ecb               -id-aes128-GCM
+ -id-aes192-GCM            -id-aes256-GCM            -rc2
+ -rc2-40-cbc               -rc2-64-cbc               -rc2-cbc
+ -rc2-cfb                  -rc2-ecb                  -rc2-ofb
+ -rc4                      -rc4-40                   -rc4-hmac-md5
+</code></pre></div></div>
+
+<p>可以看到支持的加密算法.</p>
+
+<h2 id="基本加密">基本加密</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl enc -aes-256-cfb -in plain.txt -out enc.txt -pass pass:123456
+</code></pre></div></div>
+
+<h2 id="基本解密">基本解密</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl enc -aes-256-cfb -d -in enc.txt -pass pass:123456 -out replain.txt
+</code></pre></div></div>
+
+<h2 id="-p--p-参数">-p -P 参数</h2>
+
+<p>打印加密所使用的<code class="language-plaintext highlighter-rouge">salt, key and IV</code>.</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">-P</code>不会做加解密操作, 仅打印.</p>
+</blockquote>
+
+<h2 id="-a-参数">-a 参数</h2>
+
+<p>加密的输出和解密的输入使用<code class="language-plaintext highlighter-rouge">base64</code>进行转换</p>
+
+<h2 id="-pass-参数">-pass 参数</h2>
+
+<p>指定密码的输入方式</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">-pass pass:123456</code> 通过命令行指定密码</li>
+  <li><code class="language-plaintext highlighter-rouge">-pass file:passwd.txt</code> 通过文件加载密码</li>
+  <li><code class="language-plaintext highlighter-rouge">-pass env:passwd</code> 通过环境变量加载密码</li>
+  <li><code class="language-plaintext highlighter-rouge">-pass stdin</code> 通过控制台输入指定密码</li>
+</ul>
+
+<h2 id="-s-指定salt的值">-S 指定salt的值</h2>]]></content><author><name>[&quot;wuqi&quot;]</name></author><category term="ssl" /><summary type="html"><![CDATA[参考链接]]></summary></entry><entry><title type="html">git拉取合并代码提示refusing to merge unrelated histories</title><link href="/git/2022/12/29/refusing-to-merge-unrelated-histories.html" rel="alternate" type="text/html" title="git拉取合并代码提示refusing to merge unrelated histories" /><published>2022-12-29T00:00:00+08:00</published><updated>2022-12-29T00:00:00+08:00</updated><id>/git/2022/12/29/refusing-to-merge-unrelated-histories</id><content type="html" xml:base="/git/2022/12/29/refusing-to-merge-unrelated-histories.html"><![CDATA[<h2 id="出现原因">出现原因</h2>
 
 <p>远程git记录和本地记录无法匹配, 导致无法合并.</p>
 
